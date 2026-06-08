@@ -22,7 +22,7 @@ intervals on a **leakage-free, photo-level** train/val/test split.
 Defect = class 0 = positive. Random seed = 42 throughout.
 
 ## Data & trained weights
-Archived on Zenodo (CC-BY-4.0): **DOI: 10.5281/zenodo.XXXXXXX** (dataset + weights).
+Archived on Zenodo (CC-BY-4.0): **DOI: 10.5281/zenodo.20594605** (dataset + weights).
 The reproducible split index `manifest.csv` is included in that record.
 
 ## Environment
