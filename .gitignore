@@ -1,0 +1,20 @@
+# Data and trained weights are archived on Zenodo, not in git.
+*.keras
+*.h5
+*.weights.h5
+datasets/
+Binary_Blended*/
+experiments*/
+**/backup/
+roc.dat
+pr.dat
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Misc
+*.tar.gz
+.DS_Store

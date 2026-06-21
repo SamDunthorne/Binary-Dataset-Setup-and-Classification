@@ -1,45 +1,44 @@
 """
-tile_images.py -- split full UAS photographs into an N x N grid of tiles.
+Split each full UAS photo into a GRID x GRID set of tiles.
 
-Reproduces the dataset's tiling ("sectorization") step. Each source photograph
-(named e.g. 00000123.png) is cropped into GRID x GRID equal tiles, saved as
-00000123_01.png ... 00000123_<NN>.png so that the 8-digit photo id is preserved
-in every tile name (this is what makes the leakage-free, photo-level split
-possible downstream).
+Each photo (e.g. 00000123.png) is cropped into GRID*GRID equal tiles saved as
+00000123_01.png ... 00000123_NN.png, keeping the 8-digit photo id in every tile
+name -- which is what lets the dataset be split by whole photo later.
 """
 from pathlib import Path
 from PIL import Image
 
-# ----------------------------- configuration -----------------------------
-SRC  = Path(r"path/to/original_photos")   # full photos, named <8-digit>.png
-DST  = Path(r"path/to/tiled_output")
+# Configuration
+SRC  = Path("path/to/original_photos")   # full photos, named <8-digit>.png
+DST  = Path("path/to/tiled_output")
 GRID = 6                                   # 6 -> 6x6 = 36 tiles (3 -> 9, etc.)
 EXT  = ".png"
-# -------------------------------------------------------------------------
 
 
-def tile_photo(img_path: Path, dst: Path, grid: int) -> int:
-    img = Image.open(img_path)
-    w, h = img.size
-    tw, th = w // grid, h // grid
-    n = 0
+def tile_photo(photo_path: Path, output_dir: Path, grid: int) -> int:
+    """Crop one photo into grid x grid tiles and save them. Returns the tile count."""
+    image = Image.open(photo_path)
+    width, height = image.size
+    tile_width, tile_height = width // grid, height // grid
+    tile_number = 0
     for row in range(grid):
         for col in range(grid):
-            n += 1
-            box = (col * tw, row * th, (col + 1) * tw, (row + 1) * th)
-            img.crop(box).save(dst / f"{img_path.stem}_{n:02d}{EXT}")
-    return n
+            tile_number += 1
+            left, top = col * tile_width, row * tile_height
+            crop_box = (left, top, left + tile_width, top + tile_height)
+            image.crop(crop_box).save(output_dir / f"{photo_path.stem}_{tile_number:02d}{EXT}")
+    return tile_number
 
 
 def main():
     DST.mkdir(parents=True, exist_ok=True)
     photos = sorted(SRC.glob(f"*{EXT}"))
-    print(f"tiling {len(photos)} photos into {GRID}x{GRID} = {GRID * GRID} tiles each")
-    for i, p in enumerate(photos):
-        tile_photo(p, DST, GRID)
-        if i % 200 == 0:
-            print(f"  {i}/{len(photos)} ...")
-    print(f"done -> {DST}")
+    print(f"Tiling {len(photos)} photos into {GRID}x{GRID} = {GRID * GRID} tiles each.")
+    for index, photo_path in enumerate(photos):
+        tile_photo(photo_path, DST, GRID)
+        if index % 200 == 0:
+            print(f"  {index}/{len(photos)} ...")
+    print(f"Done. Tiles written to {DST}")
 
 
 if __name__ == "__main__":
